@@ -24,6 +24,6 @@ DMD v2.066 or above
 
 	$ dmd ../../orange/lib/32/liborange.a -I../../orange/import/ -I.. ../cods/*/*.d main.d -oftest
 
-or 
+  or 
 
 	$ dmd ../../orange/lib/64/liborange.a -I../../orange/import/ -I.. ../cods/*/*.d main.d -oftest
