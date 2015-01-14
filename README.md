@@ -10,20 +10,20 @@ DMD v2.066 or above
 
  * Clone the repository : 
 
-	$ git clone https://github.com/MatthieuPerrin/CODS
+	`git clone https://github.com/MatthieuPerrin/CODS`
 
  * Compile orange : 
 
-	$ cd CODS/orange/
+	`cd CODS/orange/`
 	
-	$ make
+	`make`
 
  * compile cods (no makefile yet) :
 
-	$ cd ../cods/test
+	`cd ../cods/test`
 
-	$ dmd ../../orange/lib/32/liborange.a -I../../orange/import/ -I.. ../cods/*/*.d main.d -oftest
+	`dmd ../../orange/lib/32/liborange.a -I../../orange/import/ -I.. ../cods/*/*.d main.d -oftest`
 
   or 
 
-	$ dmd ../../orange/lib/64/liborange.a -I../../orange/import/ -I.. ../cods/*/*.d main.d -oftest
+	`dmd ../../orange/lib/64/liborange.a -I../../orange/import/ -I.. ../cods/*/*.d main.d -oftest`
