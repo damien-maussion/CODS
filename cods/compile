@@ -1,1 +1,0 @@
-dmd ../orange/lib/32/liborange.a -I../orange/import/ *.d -ofprogramme
