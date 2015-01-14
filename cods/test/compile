@@ -1,0 +1,2 @@
+
+dmd ../../orange/lib/32/liborange.a -I../../orange/import/ -I.. ../cods/*/*.d main.d -oftest
