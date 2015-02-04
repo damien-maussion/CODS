@@ -10,7 +10,7 @@ DMD v2.066 or above
 
  * Clone the repository : 
 
-	`git clone https://github.com/MatthieuPerrin/CODS`
+	`git clone https://github.com/damien-maussion/CODS`
 
  * Compile orange : 
 
