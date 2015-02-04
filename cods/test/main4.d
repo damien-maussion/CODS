@@ -42,8 +42,6 @@ class Set(T){
   public void ins(T t) {
     l[t] = true;
     //SetManager.getInstance().notify(new Event!T(name, "ins", t));
-    //Set!string students = UC.connect!(Set!string)("students");
-    //writeln(students.read());
   }
   public void del(T t) {
     l.remove(t);
@@ -106,16 +104,11 @@ class TriggerDelStudent : Trigger{
       Set!(Pair!string) teams = UC.connect!(Set!(Pair!string))("teams");
       //writeln(teams.read());
 
-      Pair!string p={"test", "test"}; 
-      teams.ins(p);
-
-      /*
       foreach (Pair!string p; teams.read() ){          
         if (p.t1==event.arg || p.t2==event.arg){
           teams.del(p);
         }
       }
-      */
     }
   }
 }
@@ -128,17 +121,13 @@ class TriggerInsTeam : Trigger{
       
       Set!string students = UC.connect!(Set!string)("students");
 
-      //if (!students.read().canFind(event.arg.t1)){
-        //writeln("add ", event.arg.t1);
-        //writeln(students.read());
+      if (!students.read().canFind(event.arg.t1)){
         students.ins(event.arg.t1);
-      //}
+      }
       
-      //if (!students.read().canFind(event.arg.t2)){
-       // writeln("add ", event.arg.t2);
-        students.ins(event.arg.t2);        
-     // }
-      
+      if (!students.read().canFind(event.arg.t2)){
+        students.ins(event.arg.t2);      
+      }
     }
   }
 }
@@ -146,7 +135,7 @@ class TriggerInsTeam : Trigger{
 class SetManager{
   
   public Trigger[] triggers;
-  private static SetManager instance = null;
+  private static __gshared SetManager instance = null;
 
   private this(){}
 
@@ -178,6 +167,24 @@ class SetManager{
   }
 }
 
+class TransIns : Transaction!void {
+  public override void execute() {
+    Pair!string team3 = {"e", "f"};
+    Set!(Pair!string) teams = UC.connect!(Set!(Pair!string))("teams");
+    teams.ins(team3);
+    auto t = new TriggerInsTeam();
+    t.exec(new Event!(Pair!string)("teams", "ins", team3));
+  }
+}
+
+class TransDel : Transaction!void {
+  public override void execute() {
+    Set!string students = UC.connect!(Set!string)("students");
+    students.del("d");
+    auto t = new TriggerDelStudent();
+    t.exec(new Event!string("students", "del", "d"));
+  }
+}
 
 /**********************************
  *
@@ -215,17 +222,14 @@ void ex1 () {
   Pair!string team2 = {"c", "d"};
   teams.ins(team2);
 
-  Pair!string team3 = {"e", "f"};
-  UC.anonymousTransaction({
-    teams.ins(team3);
-    SetManager.getInstance().notify(new Event!(Pair!string)("teams", "ins", team3));
-  });
 
-  writeln("Del d:");
-  UC.anonymousTransaction({
-    students.del("d");
-    SetManager.getInstance().notify(new Event!string("students", "del", "d"));
-  });
+  Thread.sleep(dur!("msecs")(500));
+ // writeln("name : ", students.getName());
+
+  UC.transaction!void(new TransIns());
+  
+
+  Thread.sleep(dur!("msecs")(500));
 
   writeln("\nResult :\n");
   writeln(students.read());
@@ -244,7 +248,11 @@ void ex2 () {
   Set!string students = UC.connect!(Set!string)("students");
   Set!(Pair!string) teams = UC.connect!(Set!(Pair!string))("teams");
 
-  Thread.sleep(dur!("msecs")(1500));
+  Thread.sleep(dur!("msecs")(500));
+
+  UC.transaction!void(new TransDel());
+  
+  Thread.sleep(dur!("msecs")(500));
 
   writeln(students.read());
   writeln(teams.read());
@@ -253,11 +261,14 @@ void ex2 () {
 
 void main () 
 { 
-  Network.registerType!(TransXY!UC);
-  auto network = new NetworkSimulator!1([
+  Network.registerType!(TransIns);
+  Network.registerType!(TransDel);
+  auto network = new NetworkSimulator!2([
     {
       ex1();
-    }]);
+    },{
+      ex2();
+      }]);
   Network.configure(network);
   network.start();
 }
