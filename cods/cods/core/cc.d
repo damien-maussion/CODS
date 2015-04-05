@@ -30,9 +30,7 @@ interface TypedInternalObject(T) : InternalObject {
 
 
 class Operation_List : Operation {
-  static this(){
-    Network.registerType!Operation_List;
-  }
+  
 
   Operation[] operations = [];
   
@@ -54,9 +52,7 @@ class Operation_List : Operation {
 
 
 class Operation_Method(CC, T) : Operation {
-  static this(){
-    Network.registerType!(Operation_Method!(CC, T));
-  }
+  
 
   Pointer pointer;
   Functor!T functor;
@@ -77,9 +73,7 @@ class Operation_Method(CC, T) : Operation {
 
 
 class Operation_Transaction(RT, CC) : Operation {
-  static this(){
-    Network.registerType!(Operation_Transaction!(RT, CC));
-  }
+  
 
   Transaction!RT t;
   this(Transaction!RT t) {
@@ -97,9 +91,7 @@ class Operation_Transaction(RT, CC) : Operation {
 
 
 class Operation_Transaction(RT:void, CC) : Operation {
-  static this(){
-    Network.registerType!(Operation_Transaction!(void,CC));
-  }
+  
   Transaction!void t;
   this(Transaction!void t) {
     this.t = t;
@@ -169,6 +161,9 @@ class ConsistencyCriterionBase(CCI : ConsistencyCriterionImplementation) {
       getInstance().executeOperation(opList);
     }
     
+    void registerSubType(T : Object)() {
+      Network.registerType!(T);
+    }
     void registerType(T : Object)() {
       Network.registerType!(T);
     }

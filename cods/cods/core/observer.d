@@ -9,7 +9,7 @@ import extObject;
 **/
 
 abstract class Functor(T) {
-  ExtObject execute(T) const;
+  ExtObject execute(T);
   ExtObject applyOn(CC)(Pointer!CC) const;
   string getMethodName() const;
   string getReturnType() const;
@@ -31,6 +31,18 @@ template Observer(T : Object, int options = Options.implementsBaseInterfaces) {
   string classCode() {
     string s = "";
     s = s ~ "import "~moduleName!T~";\n";
+    s = s ~ "static void registerTypeMem() {\n";
+    foreach(mem; __traits(allMembers, T)) {
+      static if (is(typeof(__traits(getMember, T, mem)))) {
+  enum prot = __traits(getProtection, __traits(getMember, T, mem));
+  static if (prot == "public" && (mem != "__ctor")) {
+    static if(isCallable!(__traits(getMember, T, mem)) && !__traits(hasMember, Object, mem)) {
+      s = s ~ Member!mem.registerTypeCode() ~ "\n";
+    }
+  }
+      }
+    }
+    s = s ~ "}\n";
     foreach(mem; __traits(allMembers, T)) {
       static if (is(typeof(__traits(getMember, T, mem)))) {
 	enum prot = __traits(getProtection, __traits(getMember, T, mem));
@@ -115,6 +127,11 @@ template Observer(T : Object, int options = Options.implementsBaseInterfaces) {
   
   template Member(string mem) {
 
+
+    string registerTypeCode() {
+      return "Network.registerType!(Funct_"~mem~");\n";
+    }
+
     /**
     * generates the class Funct_$mem
     * class Funct_$mem implements the interface Funct
@@ -136,11 +153,6 @@ template Observer(T : Object, int options = Options.implementsBaseInterfaces) {
                              }
       s = s ~ "\n";
 
-      s = s ~ "    static this() {\n";
-      s = s ~ "      Network.registerType!(Funct_"~mem~");\n";
-      s = s ~ "    }\n\n";
-    
-
       // implementation of Funct constructor;
       s = s ~ "    this(" ~ _params ~ ") {\n";
                              param_num = 0; 
@@ -152,7 +164,7 @@ template Observer(T : Object, int options = Options.implementsBaseInterfaces) {
 
 	
       // implementation of ExtObject Funct.execute();
-      s = s ~ "    override ExtObject execute(" ~ fullyQualifiedName!T ~ " x) const {\n";
+      s = s ~ "    override ExtObject execute(" ~ fullyQualifiedName!T ~ " x) {\n";
       s = s ~ "      ExtObject o;\n";
                      // First case: the class extends T, we must give a special semantics to f(this)
                              if(options & Options.extendsType) {

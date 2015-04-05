@@ -133,4 +133,5 @@ class UC_Implementation : ConsistencyCriterionImplementation {
 
 
 
-class UC : ConsistencyCriterionBase!UC_Implementation {};
+//class UC : ConsistencyCriterionBase!UC_Implementation {};
+alias UC = ConsistencyCriterionBase!UC_Implementation;
